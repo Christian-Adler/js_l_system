@@ -11,8 +11,9 @@ const degToRad = (deg) => {
 class LTree {
   constructor({sentence, step = 100, stepFactor = 0.7, thickness = 1, rotateLeftDeg = 20, rotateRightDeg = 20} = {}) {
     this._drawItems = [];
-    this._step = step;
     this._stepFactor = stepFactor;
+    this._stepStart = step;
+    this._step = step;
     this._depth = 1;
     this._thicknessMax = thickness;
     this._thickness = thickness;
@@ -51,6 +52,10 @@ class LTree {
     this._thickness = Math.min(this._thicknessMax, this._thickness + 1);
   }
 
+  set stepStart(value) {
+    this._stepStart = Math.max(1, value);
+  }
+
   get step() {
     return this._step;
   }
@@ -77,6 +82,8 @@ class LTree {
   }
 
   draw(ctx) {
+    this._step = this._stepStart;
+
     ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.8)';
     for (const drawItem of this._drawItems) {

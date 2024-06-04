@@ -1,5 +1,5 @@
 import {LTree} from "./ltree/ltree.mjs";
-import {calc} from "./lsystem.mjs";
+import {calc} from "./ltree/lsystem.mjs";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext('2d');
@@ -7,31 +7,36 @@ const ctx = canvas.getContext('2d');
 let worldWidth = canvas.width;
 let worldHeight = canvas.height;
 
+const rules = new Map();
+rules.set(">", `>>L[L>R>R>]R[R>L>L>]`);
+const sentence = calc('>', rules, 4);
+
+const lTree = new LTree({sentence, thickness: 4, step: 25});
+
 const updateWorldSettings = () => {
   if (worldHeight !== window.innerHeight || worldWidth !== window.innerWidth) {
     worldWidth = window.innerWidth;
     worldHeight = window.innerHeight;
     canvas.width = worldWidth;
     canvas.height = worldHeight;
+
+    lTree.stepStart = worldHeight / 44;
   }
 };
 
 updateWorldSettings();
 
-const rules = new Map();
-let angleL = 20;
-let angleAdd = 0.001;
-let angleR = 20;
+const openSimplex = openSimplexNoise(Date.now());
+let noiseInputVal = 1;
+const noiseStep = 0.005;
 
-rules.set(">", `>>L[L>R>R>]R[R>L>L>]`);
-const sentence = calc('>', rules, 5);
-
-const lTree = new LTree({sentence, thickness: 5, step: 15});
 
 const update = () => {
-  angleL += angleAdd; // TODO use noise to get a smooth natural wave
-  if (angleL >= 20.1 || angleL <= 19.9) angleAdd *= -1;
-  lTree.rotateLeftDeg = angleL;
+
+  noiseInputVal += noiseStep;
+  const noiseVal = openSimplex.noise2D(noiseInputVal, 0) / 10;
+
+  lTree.rotateLeftDeg = 20 + noiseVal;
   ctx.clearRect(0, 0, worldWidth, worldHeight);
 
   const t1 = new Date().getTime();
