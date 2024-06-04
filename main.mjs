@@ -1,6 +1,5 @@
+import {LTree} from "./ltree/ltree.mjs";
 import {calc} from "./lsystem.mjs";
-import {drawSentence} from "./draw.js";
-import {degToRad} from "./utils.js";
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext('2d');
@@ -20,25 +19,29 @@ const updateWorldSettings = () => {
 updateWorldSettings();
 
 const rules = new Map();
-let angle = 25;
-let angleAdd = 0.01;
-const angleR = 25;
-const update = () => {
-  angle += angleAdd;
-  if (angle > 25.5 || angle < 24.5) angleAdd *= -1;
-  rules.set(">", `>>L(${angle})[L(${angle})>R(${angleR})>R(${angleR})>]R(${angleR})[R(${angleR})>L(${angle})>L(${angle})>]`);
-  const sentence = calc('>', rules, 5);
+let angleL = 20;
+let angleAdd = 0.001;
+let angleR = 20;
 
+rules.set(">", `>>L[L>R>R>]R[R>L>L>]`);
+const sentence = calc('>', rules, 5);
+
+const lTree = new LTree({sentence, thickness: 5, step: 15});
+
+const update = () => {
+  angleL += angleAdd; // TODO use noise to get a smooth natural wave
+  if (angleL >= 20.1 || angleL <= 19.9) angleAdd *= -1;
+  lTree.rotateLeftDeg = angleL;
   ctx.clearRect(0, 0, worldWidth, worldHeight);
 
   const t1 = new Date().getTime();
   ctx.save();
   ctx.translate(worldWidth / 2, worldHeight);
-  ctx.rotate(degToRad(180));
-  drawSentence({sentence, ctx, startStepWidth: 10});
+  ctx.rotate(Math.PI);
+  lTree.draw(ctx);
   ctx.restore();
   const t2 = new Date().getTime();
-  console.log(t2 - t1);
+  // console.log(t2 - t1);
 
   updateWorldSettings();
 
@@ -47,4 +50,3 @@ const update = () => {
 }
 
 update();
-

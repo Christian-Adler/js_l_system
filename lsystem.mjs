@@ -6,9 +6,9 @@ const calc = (sentence, rules, steps = 0) => {
     const c = sentence.charAt(i);
 
     const rule = rules.get(c);
-    if (rule) {
+    if (rule)
       nextSentence += rule;
-    } else
+    else
       nextSentence += c;
   }
 
